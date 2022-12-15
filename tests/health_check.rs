@@ -1,7 +1,13 @@
 use std::net::TcpListener;
 
-use sqlx::{Connection, Executor, PgConnection, PgPool};
 use once_cell::sync::Lazy;
+use sqlx::{Connection, Executor, PgConnection, PgPool};
+
+use zero2prod::{
+    configuration::{get_configuration, DatabaseSettings},
+    startup::run,
+    telemetry::{get_subscriber, init_subscriber},
+};
 
 static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "info".to_string();
@@ -15,12 +21,6 @@ static TRACING: Lazy<()> = Lazy::new(|| {
         init_subscriber(subscriber);
     };
 });
-
-use zero2prod::{
-    configuration::{get_configuration, DatabaseSettings},
-    telemetry::{get_subscriber, init_subscriber},
-    startup::run,
-};
 
 pub struct TestApp {
     pub address: String,
