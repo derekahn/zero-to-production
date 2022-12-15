@@ -1,0 +1,17 @@
+.dockerignore
+.env
+.git
+.github
+.gitignore
+
+deploy/
+docs/
+migrations/
+scripts/
+target/
+tests/
+
+spec.yaml
+Dockerfile
+LICENSE
+*.md
