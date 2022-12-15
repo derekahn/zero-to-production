@@ -15,3 +15,21 @@ This repository contains my personal notes with excerpts and highlights of the b
 | [ch1](./docs/ch_01.md) | Getting Started              | Setup and tooling                               |
 | [ch2](./docs/ch_02.md) | Building An Email Newsletter | Project planning                                |
 | [ch3](./docs/ch_03.md) | Sign Up a New Subscriber     | Pick the tech stack & wire it all up with tests |
+| [ch4](./docs/ch_04.md) | Telemetry                    |                                                 |
+
+## Run it locally
+
+Make sure you have docker running.
+
+```sh
+# pull postgres
+docker pull postgres
+
+# install psql on macOS
+brew install libpq
+
+# seed and run postgres database in container
+./scripts/init_db.sh
+
+cargo run | bunyan
+```
