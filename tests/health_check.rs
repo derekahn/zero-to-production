@@ -1,7 +1,6 @@
-use std::net::TcpListener;
-
 use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
+use std::net::TcpListener;
 
 use zero2prod::{
     configuration::{get_configuration, DatabaseSettings},
@@ -9,10 +8,10 @@ use zero2prod::{
     telemetry::{get_subscriber, init_subscriber},
 };
 
+// Ensure that the `tracing` stack is only initialised once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "info".to_string();
     let subscriber_name = "test".to_string();
-
     if std::env::var("TEST_LOG").is_ok() {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
         init_subscriber(subscriber);
@@ -33,12 +32,11 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .expect("Failed to connect to Postgres");
 
     connection
-        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .execute(&*format!(r#"CREATE DATABASE "{}";"#, config.database_name))
         .await
-        .expect("Failed to create database.");
+        .expect("Failed to create database");
 
-    // Migrate Database
-    let connection_pool = PgPool::connect_with(config.without_db())
+    let connection_pool = PgPool::connect_with(config.with_db())
         .await
         .expect("Failed to connect to Postgres");
 
@@ -51,9 +49,13 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
 }
 
 async fn spawn_app() -> TestApp {
+    // The first time `initialize` is invoked the code in `TRACING` is executed.
+    // All other invocations will instead skip execution.
     Lazy::force(&TRACING);
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
+
+    // We retrieve the port assigned to us by the OS
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
 
@@ -61,10 +63,9 @@ async fn spawn_app() -> TestApp {
     configuration.database.database_name = uuid::Uuid::new_v4().to_string();
 
     let db_pool = configure_database(&configuration.database).await;
-
     let server = run(listener, db_pool.clone()).expect("Failed to bind address");
-    let _ = tokio::spawn(server);
 
+    tokio::spawn(server);
     TestApp { address, db_pool }
 }
 
@@ -77,7 +78,7 @@ async fn health_check_works() {
         .get(&format!("{}/health_check", &app.address))
         .send()
         .await
-        .expect("Failed to execute request.");
+        .expect("Failed to execute request");
 
     assert!(response.status().is_success());
     assert_eq!(Some(0), response.content_length());
@@ -130,8 +131,8 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
         assert_eq!(
             400,
             response.status().as_u16(),
-            "The API did not fail with 400 Bad Request when the payload was {}.",
+            "The API did not fail with 400 Bad Request when the payload was {}",
             error_message,
-        )
+        );
     }
 }
