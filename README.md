@@ -17,6 +17,7 @@ This repository contains my personal notes with excerpts and highlights of the b
 | [ch3](./docs/ch_03.md) | Sign Up a New Subscriber     | Pick the tech stack & wire it all up with tests |
 | [ch4](./docs/ch_04.md) | Telemetry                    | Implement logs then tracing                     |
 | [ch5](./docs/ch_05.md) | Going Live                   | Containerization, CI/CD                         |
+| [ch6](./docs/ch_06.md) | Reject Invalid Subscriber #1 | TODO                                            |
 
 ## Run it locally
 
