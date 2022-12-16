@@ -1,6 +1,7 @@
 FROM rust:1.65.0
 
 ENV SQLX_OFFLINE true
+ENV APP_ENVIRONMENT production
 
 WORKDIR /app
 
