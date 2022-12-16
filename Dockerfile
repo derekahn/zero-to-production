@@ -32,31 +32,3 @@ COPY configuration configuration
 
 ENV APP_ENVIRONMENT production
 ENTRYPOINT ["./zero2prod"]
-
-# WIP
-# FROM rust:1.65.0 AS builder
-
-# ENV SQLX_OFFLINE true
-# ENV RUST_BACKTRACE 1
-
-# WORKDIR /app
-
-# COPY . .
-
-# RUN apt update \
-#   && apt upgrade -y \
-#   && apt install lld clang -y \
-#   && rustup target add x86_64-unknown-linux-musl \
-#   && cargo build --release \
-#   && cargo install --target x86_64-unknown-linux-musl --path .
-
-# FROM scratch AS final
-
-# ENV APP_ENVIRONMENT production
-
-# COPY --from=builder /app/zero2prod .
-
-# EXPOSE 8000
-# USER 1000
-
-# ENTRYPOINT [ "./zero2prod" ]
