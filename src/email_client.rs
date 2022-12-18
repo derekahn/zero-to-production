@@ -41,15 +41,11 @@ impl EmailClient {
         html_content: &str,
         text_content: &str,
     ) -> Result<(), reqwest::Error> {
-        // TODO: use reqwest::Url::join if you change:
-        // `base_url`'s type from `String` to `reqweust::Url`
-        //
-        // use reqwest::Url;
-        // let base_url = Url::parse(&self.base_url).unwrap();
-        // let email_url = Url::join(&base_url, "/email").unwrap();
-        //
-        // let email_url_str = email_url.as_str();
-        let url = format!("{}/email", self.base_url);
+        use reqwest::Url;
+
+        let base_url = Url::parse(&self.base_url).unwrap();
+        let url = Url::join(&base_url, "/email").unwrap();
+
         let request_body = SendEmailRequest {
             from: self.sender.as_ref(),
             to: recipient.as_ref(),
@@ -60,7 +56,7 @@ impl EmailClient {
 
         self
             .http_client
-            .post(&url)
+            .post(url)
             .header(
                 "X-Postmark-Server-Token",
                 self.authorization_token.expose_secret(),
