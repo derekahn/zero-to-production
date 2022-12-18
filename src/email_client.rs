@@ -72,7 +72,7 @@ mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
 
-    use claim::assert_ok;
+    use claim::{assert_ok, assert_err};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
@@ -99,15 +99,29 @@ mod tests {
         }
     }
 
+    fn generate_email_client(uri: String) -> EmailClient {
+        EmailClient::new(
+            uri,
+            SubscriberEmail::parse(SafeEmail().fake()).unwrap(),
+            Secret::new(Faker.fake()),
+        )
+    }
+
+    fn generate_email_fields() -> (SubscriberEmail, String, String) {
+        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
+        let subject: String = Sentence(1..2).fake();
+        let content: String = Paragraph(1..10).fake();
+        (subscriber_email, subject, content)
+    }
+
+    #[tokio::test]
+        let mock_server = MockServer::start().await;
+
+
+
     #[tokio::test]
     async fn send_email_succeeds_if_the_server_returns_200() {
         let mock_server = MockServer::start().await;
-
-        let email_client = EmailClient::new(
-            mock_server.uri(),
-            SubscriberEmail::parse(SafeEmail().fake()).unwrap(),
-            Secret::new(Faker.fake()),
-        );
 
         Mock::given(any())
             .respond_with(ResponseTemplate::new(200))
@@ -115,10 +129,8 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
-        let subject: String = Sentence(1..2).fake();
-        let content: String = Paragraph(1..10).fake();
-
+        let email_client = generate_email_client(mock_server.uri());
+        let (subscriber_email, subject, content) = generate_email_fields();
         let outcome = email_client
             .send_email(subscriber_email, &subject, &content, &content)
             .await;
@@ -140,16 +152,8 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let email_client = EmailClient::new(
-            mock_server.uri(),
-            SubscriberEmail::parse(SafeEmail().fake()).unwrap(),
-            Secret::new(Faker.fake()),
-        );
-
-        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
-        let subject: String = Sentence(1..2).fake();
-        let content: String = Paragraph(1..10).fake();
-
+        let email_client = generate_email_client(mock_server.uri());
+        let (subscriber_email, subject, content) = generate_email_fields();
         let _ = email_client
             .send_email(subscriber_email, &subject, &content, &content)
             .await;
