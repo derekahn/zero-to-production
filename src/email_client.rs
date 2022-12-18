@@ -80,7 +80,7 @@ mod tests {
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
     use secrecy::Secret;
-    use wiremock::matchers::any;
+    use wiremock::matchers::{header, header_exists, path, method};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[tokio::test]
@@ -93,7 +93,10 @@ mod tests {
         let subject: String = Sentence(1..2).fake();
         let content: String = Paragraph(1..10).fake();
 
-        Mock::given(any())
+        Mock::given(header_exists("X-Postmark-Server-Token"))
+            .and(header("Content-Type", "application/json"))
+            .and(path("/email"))
+            .and(method("POST"))
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&mock_server)
