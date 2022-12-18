@@ -81,6 +81,8 @@ mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
 
+    use std::time::Duration;
+
     use claim::{assert_err, assert_ok};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
@@ -124,9 +126,28 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_email_times_out_if_the_server_takes_too_long() {
+        let response = ResponseTemplate::new(200).set_delay(Duration::from_secs(180));
+
+        let mock_server = MockServer::start().await;
+        Mock::given(any())
+            .respond_with(response)
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+
+        let email_client = generate_email_client(mock_server.uri());
+        let (subscriber_email, subject, content) = generate_email_fields();
+        let outcome = email_client
+            .send_email(subscriber_email, &subject, &content, &content)
+            .await;
+
+        assert_err!(outcome);
+    }
+
+    #[tokio::test]
     async fn send_email_fails_if_the_server_returns_500() {
         let mock_server = MockServer::start().await;
-
         Mock::given(any())
             .respond_with(ResponseTemplate::new(500))
             .expect(1)
@@ -135,7 +156,6 @@ mod tests {
 
         let email_client = generate_email_client(mock_server.uri());
         let (subscriber_email, subject, content) = generate_email_fields();
-
         let outcome = email_client
             .send_email(subscriber_email, &subject, &content, &content)
             .await;
@@ -146,7 +166,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_succeeds_if_the_server_returns_200() {
         let mock_server = MockServer::start().await;
-
         Mock::given(any())
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
@@ -165,7 +184,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_sends_the_expected_request() {
         let mock_server = MockServer::start().await;
-
         Mock::given(header_exists("X-Postmark-Server-Token"))
             .and(header("Content-Type", "application/json"))
             .and(path("/email"))
