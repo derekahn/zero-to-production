@@ -116,8 +116,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_email_fails_if_the_server_returns_500() {
         let mock_server = MockServer::start().await;
 
+        Mock::given(any())
+            .respond_with(ResponseTemplate::new(500))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+
+        let email_client = generate_email_client(mock_server.uri());
+        let (subscriber_email, subject, content) = generate_email_fields();
+
+        let outcome = email_client
+            .send_email(subscriber_email, &subject, &content, &content)
+            .await;
+
+        assert_err!(outcome);
+    }
 
 
     #[tokio::test]
