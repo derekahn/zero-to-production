@@ -125,7 +125,12 @@ mod tests {
 
     /// Get a test instance of `EmailClient`
     fn email_client(base_url: String) -> EmailClient {
-        EmailClient::new(base_url, email(), Secret::new(Faker.fake()))
+        EmailClient::new(
+            base_url,
+            email(),
+            Secret::new(Faker.fake()),
+            Duration::from_millis(200),
+        )
     }
 
     #[tokio::test]
