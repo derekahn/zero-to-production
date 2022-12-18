@@ -18,6 +18,7 @@ This repository contains my personal notes with excerpts and highlights of the b
 | [ch4](./docs/ch_04.md) | Telemetry                    | Implement logs then tracing                     |
 | [ch5](./docs/ch_05.md) | Going Live                   | Containerization, CI/CD                         |
 | [ch6](./docs/ch_06.md) | Reject Invalid Subscriber #1 | Form validation and code organization           |
+| [ch7](./docs/ch_07.md) | Reject Invalid Subscriber #2 | Postmark API request                            |
 
 ## Run it locally
 
