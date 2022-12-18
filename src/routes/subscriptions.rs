@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
@@ -20,23 +22,22 @@ pub struct FormData {
         subscriber_name = %form.name
     )
 )]
-
 pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
-    let new_subscriber = NewSubscriber {
-        name: match SubscriberName::parse(form.0.name) {
-            Ok(name) => name,
-            Err(_) => return HttpResponse::BadRequest().finish(),
-        },
-        email: match SubscriberEmail::parse(form.0.email) {
-            Ok(email) => email,
-            Err(_) => return HttpResponse::BadRequest().finish(),
-        },
+    let new_subscriber = match parse_subscriber(form.0) {
+        Ok(subscriber) => subscriber,
+        Err(_) => return HttpResponse::BadRequest().finish(),
     };
 
     match insert_subscriber(&pool, &new_subscriber).await {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
+}
+
+pub fn parse_subscriber(form: FormData) -> Result<NewSubscriber, String> {
+    let name = SubscriberName::parse(form.name)?;
+    let email = SubscriberEmail::parse(form.email)?;
+    Ok(NewSubscriber { email, name })
 }
 
 #[tracing::instrument(
