@@ -1,6 +1,9 @@
-use crate::domain::SubscriberEmail;
+use std::time::Duration;
+
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
+
+use crate::domain::SubscriberEmail;
 
 #[derive(serde::Serialize)]
 #[serde(rename_all = "PascalCase")]
@@ -26,8 +29,13 @@ impl EmailClient {
         sender: SubscriberEmail,
         authorization_token: Secret<String>,
     ) -> Self {
+        let http_client = Client::builder()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+
         Self {
-            http_client: Client::new(),
+            http_client,
             base_url,
             sender,
             authorization_token,
