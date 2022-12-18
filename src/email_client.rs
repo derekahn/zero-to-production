@@ -1,6 +1,6 @@
 use crate::domain::SubscriberEmail;
 use reqwest::Client;
-use secrecy::{Secret, ExposeSecret};
+use secrecy::{ExposeSecret, Secret};
 
 #[derive(serde::Serialize)]
 #[serde(rename_all = "PascalCase")]
@@ -54,8 +54,7 @@ impl EmailClient {
             text_body: text_content,
         };
 
-        self
-            .http_client
+        self.http_client
             .post(url)
             .header(
                 "X-Postmark-Server-Token",
@@ -73,12 +72,13 @@ mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
 
+    use claim::assert_ok;
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
     use secrecy::Secret;
+    use wiremock::matchers::{any, header, header_exists, method, path};
     use wiremock::Request;
-    use wiremock::matchers::{header, header_exists, path, method};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
     struct SendEmailBodyMatcher;
@@ -89,10 +89,10 @@ mod tests {
 
             if let Ok(body) = result {
                 body.get("From").is_some()
-                && body.get("To").is_some()
-                && body.get("Subject").is_some()
-                && body.get("HtmlBody").is_some()
-                && body.get("TextBody").is_some()
+                    && body.get("To").is_some()
+                    && body.get("Subject").is_some()
+                    && body.get("HtmlBody").is_some()
+                    && body.get("TextBody").is_some()
             } else {
                 false
             }
@@ -100,7 +100,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn send_email_sends_the_expected_request() {
         let mock_server = MockServer::start().await;
         let sender = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
         let email_client = EmailClient::new(mock_server.uri(), sender, Secret::new(Faker.fake()));
@@ -108,6 +107,10 @@ mod tests {
         let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
         let subject: String = Sentence(1..2).fake();
         let content: String = Paragraph(1..10).fake();
+
+    #[tokio::test]
+    async fn send_email_sends_the_expected_request() {
+        let mock_server = MockServer::start().await;
 
         Mock::given(header_exists("X-Postmark-Server-Token"))
             .and(header("Content-Type", "application/json"))
@@ -118,6 +121,16 @@ mod tests {
             .expect(1)
             .mount(&mock_server)
             .await;
+
+        let email_client = EmailClient::new(
+            mock_server.uri(),
+            SubscriberEmail::parse(SafeEmail().fake()).unwrap(),
+            Secret::new(Faker.fake()),
+        );
+
+        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
+        let subject: String = Sentence(1..2).fake();
+        let content: String = Paragraph(1..10).fake();
 
         let _ = email_client
             .send_email(subscriber_email, &subject, &content, &content)
