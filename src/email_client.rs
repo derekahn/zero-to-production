@@ -110,19 +110,24 @@ mod tests {
         }
     }
 
-    fn generate_email_client(uri: String) -> EmailClient {
-        EmailClient::new(
-            uri,
-            SubscriberEmail::parse(SafeEmail().fake()).unwrap(),
-            Secret::new(Faker.fake()),
-        )
+    /// Generate a random email subject
+    fn subject() -> String {
+        Sentence(1..2).fake()
     }
 
-    fn generate_email_fields() -> (SubscriberEmail, String, String) {
-        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
-        let subject: String = Sentence(1..2).fake();
-        let content: String = Paragraph(1..10).fake();
-        (subscriber_email, subject, content)
+    /// Generate random email content
+    fn content() -> String {
+        Paragraph(1..10).fake()
+    }
+
+    /// Generate a random subscriber email
+    fn email() -> SubscriberEmail {
+        SubscriberEmail::parse(SafeEmail().fake()).unwrap()
+    }
+
+    /// Get a test instance of `EmailClient`
+    fn email_client(base_url: String) -> EmailClient {
+        EmailClient::new(base_url, email(), Secret::new(Faker.fake()))
     }
 
     #[tokio::test]
@@ -136,10 +141,9 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let email_client = generate_email_client(mock_server.uri());
-        let (subscriber_email, subject, content) = generate_email_fields();
+        let email_client = email_client(mock_server.uri());
         let outcome = email_client
-            .send_email(subscriber_email, &subject, &content, &content)
+            .send_email(email(), &subject(), &content(), &content())
             .await;
 
         assert_err!(outcome);
@@ -154,10 +158,9 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let email_client = generate_email_client(mock_server.uri());
-        let (subscriber_email, subject, content) = generate_email_fields();
+        let email_client = email_client(mock_server.uri());
         let outcome = email_client
-            .send_email(subscriber_email, &subject, &content, &content)
+            .send_email(email(), &subject(), &content(), &content())
             .await;
 
         assert_err!(outcome);
@@ -172,10 +175,9 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let email_client = generate_email_client(mock_server.uri());
-        let (subscriber_email, subject, content) = generate_email_fields();
+        let email_client = email_client(mock_server.uri());
         let outcome = email_client
-            .send_email(subscriber_email, &subject, &content, &content)
+            .send_email(email(), &subject(), &content(), &content())
             .await;
 
         assert_ok!(outcome);
@@ -194,10 +196,9 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let email_client = generate_email_client(mock_server.uri());
-        let (subscriber_email, subject, content) = generate_email_fields();
+        let email_client = email_client(mock_server.uri());
         let _ = email_client
-            .send_email(subscriber_email, &subject, &content, &content)
+            .send_email(email(), &subject(), &content(), &content())
             .await;
     }
 }
