@@ -73,7 +73,7 @@ mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
 
-    use claim::{assert_ok, assert_err};
+    use claim::{assert_err, assert_ok};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
@@ -134,7 +134,6 @@ mod tests {
 
         assert_err!(outcome);
     }
-
 
     #[tokio::test]
     async fn send_email_succeeds_if_the_server_returns_200() {
