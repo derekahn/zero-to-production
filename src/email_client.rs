@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use reqwest::Client;
+use reqwest::{Client, Url};
 use secrecy::{ExposeSecret, Secret};
 
 use crate::domain::SubscriberEmail;
@@ -47,8 +47,6 @@ impl EmailClient {
         html_content: &str,
         text_content: &str,
     ) -> Result<(), reqwest::Error> {
-        use reqwest::Url;
-
         let base_url = Url::parse(&self.base_url).unwrap();
         let url = Url::join(&base_url, "/email").unwrap();
 
@@ -70,6 +68,7 @@ impl EmailClient {
             .send()
             .await?
             .error_for_status()?;
+
         Ok(())
     }
 }
