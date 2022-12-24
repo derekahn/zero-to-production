@@ -1,5 +1,4 @@
 use actix_web::{web, HttpResponse};
-use chrono::Utc;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
@@ -101,8 +100,10 @@ pub async fn store_token(
     subscription_token: &str,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
-        r#"INSERT INTO subscription_tokens (subscription_token, subscriber_id)
-        VALUES ($1, $2)"#,
+        r#"
+        INSERT INTO subscription_tokens (subscription_token, subscriber_id)
+        VALUES ($1, $2)
+        "#,
         subscription_token,
         subscriber_id,
     )
@@ -155,13 +156,13 @@ pub async fn insert_subscriber(
 
     sqlx::query!(
         r#"
-    INSERT INTO subscriptions (id, email, name, subscribed_at, status)
-    VALUES ($1, $2, $3, $4, 'pending_confirmation')
+        INSERT INTO subscriptions (id, email, name, subscribed_at, status)
+        VALUES ($1, $2, $3, $4, 'pending_confirmation')
         "#,
-        subscriber_id,
+        &subscriber_id,
         new_subscriber.email.as_ref(),
         new_subscriber.name.as_ref(),
-        Utc::now()
+        chrono::Utc::now(),
     )
     .execute(transaction)
     .await

@@ -33,7 +33,7 @@ impl Application {
             "{}:{}",
             configuration.application.host, configuration.application.port,
         );
-        let listener = TcpListener::bind(&address)?;
+        let listener = TcpListener::bind(address)?;
         let connection_pool = get_connection_pool(&configuration.database);
 
         let port = listener.local_addr().unwrap().port();
