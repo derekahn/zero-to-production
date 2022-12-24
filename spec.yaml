@@ -35,6 +35,12 @@ services:
       - key: APP_DATABASE__DATABASE_NAME
         scope: RUN_TIME
         value: ${newsletter.DATABASE}
+      - key: APP_EMAIL_CLIENT__BASE_URL
+        scope: RUN_TIME
+      - key: APP_EMAIL_CLIENT__SENDER_EMAIL
+        scope: RUN_TIME
+      - key: APP_EMAIL_CLIENT__AUTHORIZATION_TOKEN
+        scope: RUN_TIME
 databases:
   - engine: PG
     name: newsletter
