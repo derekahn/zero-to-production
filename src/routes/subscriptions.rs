@@ -17,13 +17,30 @@ pub struct FormData {
 
 impl TryFrom<FormData> for NewSubscriber {
     type Error = String;
+impl std::error::Error for SubscribeError {}
 
     fn try_from(value: FormData) -> Result<Self, Self::Error> {
         let email = SubscriberEmail::parse(value.email)?;
         let name = SubscriberName::parse(value.name)?;
         Ok(Self { email, name })
+impl ResponseError for SubscribeError {}
     }
 }
+
+#[derive(Debug)]
+struct SubscribeError {}
+
+impl std::fmt::Display for SubscribeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Failed to create a new subscriber"
+        )
+    }
+}
+
+impl std::error::Error for SubscribeError {}
+impl ResponseError for SubscribeError {}
 
 /// Generate a random 25-characters-long case-sensitive subscription token
 fn generate_subscription_token() -> String {
@@ -48,7 +65,7 @@ pub async fn subscribe(
     pool: web::Data<PgPool>,
     email_client: web::Data<EmailClient>,
     base_url: web::Data<ApplicationBaseUrl>,
-) -> Result<HttpResponse, actix_web::Error> {
+) -> Result<HttpResponse, SubscribeError> {
     let new_subscriber = match form.0.try_into() {
         Ok(form) => form,
         Err(_) => return Ok(HttpResponse::BadRequest().finish()),
@@ -97,8 +114,6 @@ fn error_chain_fmt(e: &impl std::error::Error, f: &mut std::fmt::Formatter<'_>) 
 
 /// A new error type, wrapping a sqlx::Error
 pub struct StoreTokenError(sqlx::Error);
-
-impl ResponseError for StoreTokenError {}
 
 impl std::fmt::Display for StoreTokenError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
