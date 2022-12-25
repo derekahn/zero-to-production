@@ -9,26 +9,41 @@ use crate::{
     startup::ApplicationBaseUrl,
 };
 
-#[derive(serde::Deserialize)]
-pub struct FormData {
-    email: String,
-    name: String,
+#[derive(Debug)]
+pub enum SubscribeError {
+    ValidationError(String),
+    DatabaseError(sqlx::Error),
+    StoreTokenError(StoreTokenError),
+    SendEmailError(reqwest::Error),
 }
 
-impl TryFrom<FormData> for NewSubscriber {
-    type Error = String;
 impl std::error::Error for SubscribeError {}
 
-    fn try_from(value: FormData) -> Result<Self, Self::Error> {
-        let email = SubscriberEmail::parse(value.email)?;
-        let name = SubscriberName::parse(value.name)?;
-        Ok(Self { email, name })
 impl ResponseError for SubscribeError {}
+
+impl From<reqwest::Error> for SubscribeError {
+    fn from(e: reqwest::Error) -> Self {
+        Self::SendEmailError(e)
     }
 }
 
-#[derive(Debug)]
-struct SubscribeError {}
+impl From<sqlx::Error> for SubscribeError {
+    fn from(e: sqlx::Error) -> Self {
+        Self::DatabaseError(e)
+    }
+}
+
+impl From<StoreTokenError> for SubscribeError {
+    fn from(e: StoreTokenError) -> Self {
+        Self::StoreTokenError(e)
+    }
+}
+
+impl From<String> for SubscribeError {
+    fn from(e: String) -> Self {
+        Self::ValidationError(e)
+    }
+}
 
 impl std::fmt::Display for SubscribeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -39,8 +54,21 @@ impl std::fmt::Display for SubscribeError {
     }
 }
 
-impl std::error::Error for SubscribeError {}
-impl ResponseError for SubscribeError {}
+#[derive(serde::Deserialize)]
+pub struct FormData {
+    email: String,
+    name: String,
+}
+
+impl TryFrom<FormData> for NewSubscriber {
+    type Error = String;
+
+    fn try_from(value: FormData) -> Result<Self, Self::Error> {
+        let email = SubscriberEmail::parse(value.email)?;
+        let name = SubscriberName::parse(value.name)?;
+        Ok(Self { email, name })
+    }
+}
 
 /// Generate a random 25-characters-long case-sensitive subscription token
 fn generate_subscription_token() -> String {
@@ -66,39 +94,21 @@ pub async fn subscribe(
     email_client: web::Data<EmailClient>,
     base_url: web::Data<ApplicationBaseUrl>,
 ) -> Result<HttpResponse, SubscribeError> {
-    let new_subscriber = match form.0.try_into() {
-        Ok(form) => form,
-        Err(_) => return Ok(HttpResponse::BadRequest().finish()),
-    };
-
-    let mut transaction = match pool.begin().await {
-        Ok(transaction) => transaction,
-        Err(_) => return Ok(HttpResponse::BadRequest().finish()),
-    };
-
-    let subscriber_id = match insert_subscriber(&mut transaction, &new_subscriber).await {
-        Ok(subscriber_id) => subscriber_id,
-        Err(_) => return Ok(HttpResponse::BadRequest().finish()),
-    };
-
+    let new_subscriber = form.0.try_into()?;
+    let mut transaction = pool.begin().await?;
+    let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber).await? ;
     let subscription_token = generate_subscription_token();
+
     store_token(&mut transaction, subscriber_id, &subscription_token).await?;
-
-    if transaction.commit().await.is_err() {
-        return Ok(HttpResponse::InternalServerError().finish());
-    }
-
-    if send_confirmation_email(
+    transaction.commit().await?;
+    send_confirmation_email(
         &email_client,
         new_subscriber,
         &base_url.0,
         &subscription_token,
     )
-    .await
-    .is_err()
-    {
-        return Ok(HttpResponse::InternalServerError().finish());
-    }
+    .await?;
+
     Ok(HttpResponse::Ok().finish())
 }
 
