@@ -62,11 +62,14 @@ impl std::fmt::Display for SubscribeError {
             SubscribeError::InsertSubscriberError(_) => {
                 write!(f, "Failed to insert new subscriber in the database")
             }
-            SubscribeError::TransactionCommitError(_)=> {
+            SubscribeError::TransactionCommitError(_) => {
                 write!(f, "Failed to commit SQL transaction to store a new user")
             }
             SubscribeError::StoreTokenError(_) => {
-                write!(f, "Failed to store the confirmation token for a new subscriber")
+                write!(
+                    f,
+                    "Failed to store the confirmation token for a new subscriber",
+                )
             }
             SubscribeError::SendEmailError(_) => {
                 write!(f, "Failed to send a confirmation email")
@@ -135,10 +138,7 @@ pub async fn subscribe(
 ) -> Result<HttpResponse, SubscribeError> {
     let new_subscriber = form.0.try_into()?;
     let subscription_token = generate_subscription_token();
-
-    let mut transaction = pool.begin()
-        .await
-        .map_err(SubscribeError::PoolError)?;
+    let mut transaction = pool.begin().await.map_err(SubscribeError::PoolError)?;
 
     let subscriber_id = insert_subscriber(&mut transaction, &new_subscriber)
         .await
@@ -162,7 +162,10 @@ pub async fn subscribe(
     Ok(HttpResponse::Ok().finish())
 }
 
-fn error_chain_fmt(e: &impl std::error::Error, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+fn error_chain_fmt(
+    e: &impl std::error::Error,
+    f: &mut std::fmt::Formatter<'_>,
+) -> std::fmt::Result {
     writeln!(f, "{}\n", e)?;
 
     let mut current = e.source();
