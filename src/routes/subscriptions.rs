@@ -59,7 +59,6 @@ fn generate_subscription_token() -> String {
         .collect()
 }
 
-#[allow(clippy::async_yields_async)]
 #[tracing::instrument(
     name = "Adding a new subscriber",
     skip(form, pool, email_client, base_url),
@@ -107,7 +106,7 @@ pub async fn subscribe(
     Ok(HttpResponse::Ok().finish())
 }
 
-fn error_chain_fmt(
+pub fn error_chain_fmt(
     e: &impl std::error::Error,
     f: &mut std::fmt::Formatter<'_>,
 ) -> std::fmt::Result {
@@ -165,10 +164,8 @@ pub async fn store_token(
     )
     .execute(transaction)
     .await
-    .map_err(|e| {
-        tracing::error!("Failed to execute query: {:?}", e);
-        StoreTokenError(e)
-    })?;
+    .map_err(|e| StoreTokenError(e))?;
+
     Ok(())
 }
 
@@ -221,11 +218,7 @@ pub async fn insert_subscriber(
         chrono::Utc::now(),
     )
     .execute(transaction)
-    .await
-    .map_err(|e| {
-        tracing::error!("Failed to execute query: {:?}", e);
-        e
-    })?;
+    .await?;
 
     Ok(subscriber_id)
 }
