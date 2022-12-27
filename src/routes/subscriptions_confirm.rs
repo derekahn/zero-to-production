@@ -12,25 +12,25 @@ pub struct Parameters {
 }
 
 #[derive(thiserror::Error)]
-pub enum ConfirmError {
-    #[error("{0}")]
-    ParamsError(String),
+pub enum ConfirmationError {
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
+    #[error("There is no subscriber associated with the provided token.")]
+    UnknownToken,
 }
 
-impl ResponseError for ConfirmError {
-    fn status_code(&self) -> reqwest::StatusCode {
-        match self {
-            ConfirmError::ParamsError(_) => StatusCode::BAD_REQUEST,
-            ConfirmError::UnexpectedError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        }
+impl std::fmt::Debug for ConfirmationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        error_chain_fmt(self, f)
     }
 }
 
-impl std::fmt::Debug for ConfirmError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        error_chain_fmt(self, f)
+impl ResponseError for ConfirmationError {
+    fn status_code(&self) -> reqwest::StatusCode {
+        match self {
+            ConfirmationError::UnexpectedError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ConfirmationError::UnknownToken => StatusCode::UNAUTHORIZED,
+        }
     }
 }
 
@@ -38,14 +38,15 @@ impl std::fmt::Debug for ConfirmError {
 pub async fn confirm(
     parameters: web::Query<Parameters>,
     pool: web::Data<PgPool>,
-) -> Result<HttpResponse, ConfirmError> {
-    let id = get_subscriber_id_from_token(&pool, &parameters.subscription_token)
+) -> Result<HttpResponse, ConfirmationError> {
+    let subscriber_id = get_subscriber_id_from_token(&pool, &parameters.subscription_token)
         .await
-        .context("Failed to retrieve token from the database")?;
+        .context("Failed to retrieve the subscriber id associated with the provided token.")?
+        .ok_or(ConfirmationError::UnknownToken)?;
 
-    confirm_subscriber(&pool, id.unwrap())
+    confirm_subscriber(&pool, subscriber_id)
         .await
-        .context("Failed to update subscriber status to 'confirmed' in database")?;
+        .context("Failed to update the subscriber status to `confirmed`.")?;
 
     Ok(HttpResponse::Ok().finish())
 }
