@@ -1,7 +1,7 @@
 use wiremock::matchers::{any, method, path};
 use wiremock::{Mock, ResponseTemplate};
 
-use crate::helpers::{spawn_app, TestApp, ConfirmationLinks};
+use crate::helpers::{spawn_app, ConfirmationLinks, TestApp};
 
 #[tokio::test]
 async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
@@ -47,8 +47,8 @@ async fn newsletters_are_delivered_to_confirmed_subscribers() {
     let newsletter_request_body = serde_json::json!({
         "title": "Newsletter title",
         "content": {
-           "text": "Newsletter body as plain text", 
-           "html": "<p>Newsletter body as plain HTML</p>", 
+            "text": "Newsletter body as plain text",
+            "html": "<p>Newsletter body as plain HTML</p>",
         }
     });
 
@@ -58,7 +58,7 @@ async fn newsletters_are_delivered_to_confirmed_subscribers() {
         .send()
         .await
         .expect("Failed to execute request");
-    
+
     assert_eq!(response.status().as_u16(), 200);
 }
 
