@@ -60,15 +60,19 @@ pub async fn publish_newsletter(
 }
 
 struct ConfirmedSubscriber {
-    email: String,
+    email: SubscriberEmail,
 }
 
 #[tracing::instrument(name = "Get confirmed subscribers", skip(pool))]
 async fn get_confirmed_subscribers(
     pool: &PgPool,
 ) -> Result<Vec<ConfirmedSubscriber>, anyhow::Error> {
+    struct Row {
+        email: String,
+    }
+
     let rows = sqlx::query_as!(
-        ConfirmedSubscriber,
+        Row,
         r#"
         SELECT email
         FROM subscriptions
@@ -78,5 +82,19 @@ async fn get_confirmed_subscribers(
     .fetch_all(pool)
     .await?;
 
-    Ok(rows)
+    let confirmed_subscribers = rows
+        .into_iter()
+        .filter_map(|r| match SubscriberEmail::parse(r.email) {
+            Ok(email) => Some(ConfirmedSubscriber { email }),
+            Err(error) => {
+                tracing::warn!(
+                    "A confirmed subscriber is using an invaild email address\n {}",
+                    error
+                );
+                None
+            }
+        })
+        .collect();
+
+    Ok(confirmed_subscribers)
 }
