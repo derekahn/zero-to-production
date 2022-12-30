@@ -1,10 +1,8 @@
-#![allow(dead_code)]
-
 use actix_web::{http::StatusCode, web, HttpResponse, ResponseError};
 use anyhow::Context;
 use sqlx::PgPool;
 
-use crate::{email_client::EmailClient, routes::error_chain_fmt, domain::SubscriberEmail};
+use crate::{domain::SubscriberEmail, email_client::EmailClient, routes::error_chain_fmt};
 
 #[derive(thiserror::Error)]
 pub enum PublishError {
@@ -56,7 +54,9 @@ pub async fn publish_newsletter(
                         &body.content.text,
                     )
                     .await
-                    .with_context(|| format!("Failed to send newsletter issue to {}", subscriber.email))?;
+                    .with_context(|| {
+                        format!("Failed to send newsletter issue to {}", subscriber.email)
+                    })?;
             }
             Err(error) => {
                 tracing::warn!(
