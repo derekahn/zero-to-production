@@ -20,7 +20,7 @@ This repository contains my personal notes with excerpts and highlights of the b
 | [ch6](./docs/ch_06.md) | Reject Invalid Subscriber #1 | Form validation and code organization           |
 | [ch7](./docs/ch_07.md) | Reject Invalid Subscriber #2 | Wire up confirmation email flow                 |
 | [ch8](./docs/ch_08.md) | Error Handling               | Advanced and proper error handling              |
-| [ch9](./docs/ch_09.md) | Naive Newsletter Delivery    | TODO                                            |
+| [ch9](./docs/ch_09.md) | Naive Newsletter Delivery    | Initial feature to send newsletter              |
 
 ## Run it locally
 
