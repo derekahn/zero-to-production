@@ -24,6 +24,7 @@ reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
 secrecy = { version = "0.8", features = ["serde"] }
 serde = "1.0.115"
 serde-aux = "3"
+sha3 = "0.9"
 sqlx = { version = "0.6", default-features = false, features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
