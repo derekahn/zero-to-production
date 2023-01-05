@@ -37,6 +37,7 @@ unicode-segmentation = "1"
 uuid = { version = "1", features = ["v4"] }
 validator = "0.16"
 urlencoding = "2"
+htmlescape = "0.3"
 
 [dev-dependencies]
 claim = "0.5"
