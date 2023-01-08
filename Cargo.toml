@@ -14,18 +14,23 @@ name = "zero2prod"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+actix-session = { version = "0.6", features = ["redis-rs-tls-session"] }
 actix-web = "4"
 actix-web-flash-messages = { version = "0.3", features = ["cookies"] }
-argon2 = { version = "0.3", features = ["std"]}
 anyhow = "1"
+argon2 = { version = "0.3", features = ["std"]}
 base64 = "0.13"
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 config = { version = "0.13", default-features = false, features = ["yaml"] }
+hex = "0.4"
+hmac = { version = "0.12", features =["std"] }
+htmlescape = "0.3"
 rand = { version = "0.8", features = ["std_rng"] }
 reqwest = { version = "0.11", features = ["json", "rustls-tls", "cookies"] }
 secrecy = { version = "0.8", features = ["serde"] }
 serde = "1.0.115"
 serde-aux = "3"
+sha2 = "0.10"
 sqlx = { version = "0.6", default-features = false, features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
@@ -35,13 +40,9 @@ tracing-bunyan-formatter = "0.3.1"
 tracing-log = "0.1.1"
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
 unicode-segmentation = "1"
+urlencoding = "2"
 uuid = { version = "1", features = ["v4"] }
 validator = "0.16"
-urlencoding = "2"
-htmlescape = "0.3"
-hmac = { version = "0.12", features =["std"] }
-sha2 = "0.10"
-hex = "0.4"
 
 [dev-dependencies]
 claim = "0.5"
