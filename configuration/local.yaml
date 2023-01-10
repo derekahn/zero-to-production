@@ -4,3 +4,8 @@ application:
   base_url: "http://127.0.0.1"
 database:
   require_ssl: false
+# TODO: FIll me out!
+# email_client:
+#   base_url: "https://api.postmarkapp.com"
+#   sender_email: "TODO 📧"
+#   authorization_token: "TODO 🔑"
