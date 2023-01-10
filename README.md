@@ -26,17 +26,42 @@ This repository contains my personal notes with excerpts and highlights of the b
 
 ## Run it locally
 
+### Configure base.yaml
+
+Input your postmark API 📧 and 🔑 in `./configuration/local.yaml`.
+
+**You get get your postmark API token at:**
+
+- `https://account.postmarkapp.com/servers/{YOUR_POSTMARK_SERVER_ID}/credentials`
+
+**Your postmark email is the email you used to sign up with**
+
+- `https://account.postmarkapp.com/signature_domains`
+
+```yaml
+# TODO: Fill me out
+# email_client:
+#   base_url: "https://api.postmarkapp.com"
+#   sender_email: "TODO 📧"
+#   authorization_token: "TODO 🔑"
+```
+
+### Start The Sever
+
 Make sure you have docker running.
 
 ```sh
-# pull postgres
-docker pull postgres
-
-# install psql on macOS
-brew install libpq
-
 # seed and run postgres database in container
 ./scripts/init_db.sh
 
+# run redis server
+./scripts/init_redis.sh
+
 cargo run | bunyan
 ```
+
+### Check The App
+
+[`http://localhost:8000/`](http://localhost:8000/)
+
+Please read through the documentation regarding [**QA**](./docs/qa.md)
