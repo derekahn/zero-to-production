@@ -5,18 +5,18 @@ use actix_session::SessionMiddleware;
 use actix_web::dev::Server;
 use actix_web::{cookie::Key, web, App, HttpServer};
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
+use actix_web_lab::middleware::from_fn;
 use secrecy::{ExposeSecret, Secret};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use tracing_actix_web::TracingLogger;
 
+use crate::authentication::reject_anonymous_users;
 use crate::configuration::{DatabaseSettings, Settings};
 use crate::email_client::EmailClient;
-use crate::routes::admin_dashboard;
-use crate::routes::log_out;
-use crate::routes::{change_password, change_password_form};
 use crate::routes::{
-    confirm, health_check, home, login, login_form, publish_newsletter, subscribe,
+    admin_dashboard, change_password, change_password_form, confirm, health_check, home, log_out,
+    login, login_form, publish_newsletter, subscribe,
 };
 
 pub struct Application {
@@ -106,10 +106,14 @@ async fn run(
             ))
             .wrap(TracingLogger::default())
             .route("/", web::get().to(home))
-            .route("/admin/dashboard", web::get().to(admin_dashboard))
-            .route("/admin/logout", web::post().to(log_out))
-            .route("/admin/password", web::get().to(change_password_form))
-            .route("/admin/password", web::post().to(change_password))
+            .service(
+                web::scope("/admin")
+                    .wrap(from_fn(reject_anonymous_users))
+                    .route("/dashboard", web::get().to(admin_dashboard))
+                    .route("/logout", web::post().to(log_out))
+                    .route("/password", web::get().to(change_password_form))
+                    .route("/password", web::post().to(change_password)),
+            )
             .route("/health_check", web::get().to(health_check))
             .route("/login", web::get().to(login_form))
             .route("/login", web::post().to(login))
