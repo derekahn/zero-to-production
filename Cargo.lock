@@ -226,9 +226,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-flash-messages"
-version = "0.3.3"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c11707b0318fb0258259e518e0275783d1e947c24b6d5e8b2e8b69290b049d1"
+checksum = "300b8100fc09e9eb5036775f7d1e67f643c25fe6e796e7dbdeb8423c39482106"
 dependencies = [
  "actix-web",
  "anyhow",
@@ -242,9 +242,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-lab"
-version = "0.15.2"
+version = "0.18.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72943fc490da47f8ca7515f395d6d2aa9b28e244e7a087d801c55a4c058e3b13"
+checksum = "55b7ac6309cfb46949171c49f7bc81d021310205a39bf0b0d0465e80a4857e3c"
 dependencies = [
  "actix-files",
  "actix-http",
@@ -252,27 +252,42 @@ dependencies = [
  "actix-service",
  "actix-utils",
  "actix-web",
- "ahash 0.7.6",
+ "actix-web-lab-derive",
+ "ahash 0.8.2",
  "arc-swap",
  "async-trait",
  "bytes",
+ "bytestring",
  "csv",
  "derive_more",
- "digest",
  "futures-core",
  "futures-util",
- "generic-array",
- "hmac",
+ "http",
+ "impl-more",
+ "itertools",
  "local-channel",
+ "mediatype",
  "mime",
  "once_cell",
  "pin-project-lite",
+ "regex",
  "serde",
+ "serde_cbor_2",
+ "serde_html_form",
  "serde_json",
- "serde_urlencoded",
- "subtle",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "actix-web-lab-derive"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4419acd7924ac473ccd00a6efea324dd382b0b7ae31b8e06cd2c58d4d7afae6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1197,6 +1212,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "half"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
+
+[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1419,6 +1440,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "impl-more"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d14c422088773284a62e155b3e2f700a52cd3731dabe2cffd914e13f71b6bd4e"
+
+[[package]]
 name = "indexmap"
 version = "1.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1598,6 +1625,12 @@ checksum = "6365506850d44bff6e2fbcb5176cf63650e48bd45ef2fe2665ae1570e0f4b9ca"
 dependencies = [
  "digest",
 ]
+
+[[package]]
+name = "mediatype"
+version = "0.19.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a280afd79e5a4c3e7f298c6139321aad0365690f24a57539e18590b5a606966"
 
 [[package]]
 name = "memchr"
@@ -2322,6 +2355,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_cbor_2"
+version = "0.12.0-dev"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b46d75f449e01f1eddbe9b00f432d616fbbd899b809c837d0fbc380496a0dd55"
+dependencies = [
+ "half",
+ "serde",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2330,6 +2373,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "serde_html_form"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d051fb33111db0e81673ed8c55db741952a19ad81dc584960c8aec836498ba5"
+dependencies = [
+ "form_urlencoded",
+ "indexmap",
+ "itoa 1.0.5",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
