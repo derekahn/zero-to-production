@@ -27,9 +27,9 @@ pub struct FormData {
 )]
 pub async fn publish_newsletter(
     form: web::Form<FormData>,
-    user_id: ReqData<UserId>,
     pool: web::Data<PgPool>,
     email_client: web::Data<EmailClient>,
+    user_id: ReqData<UserId>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let FormData {
         title,
@@ -38,8 +38,8 @@ pub async fn publish_newsletter(
         idempotency_key,
     } = form.0;
 
-    let user_id = user_id.into_inner();
     let idempotency_key: IdempotencyKey = idempotency_key.try_into().map_err(e400)?;
+    let user_id = user_id.into_inner();
 
     if let Some(saved_response) = get_saved_response(&pool, &idempotency_key, *user_id)
         .await
@@ -69,6 +69,7 @@ pub async fn publish_newsletter(
             }
         }
     }
+
     FlashMessage::info("The newsletter issue has been published!").send();
     let response = save_response(
         &pool,

@@ -155,5 +155,5 @@ async fn newsletter_creation_is_idempotent() {
     assert_is_redirect_to(&response, "/admin/newsletters");
 
     let html_page = app.get_publish_newsletter_html().await;
-    assert!(html_page.contains("<p><i>The newsletter issue has been published!</i></p>"))
+    assert!(html_page.contains("<p><i>The newsletter issue has been published!</i></p>"));
 }
