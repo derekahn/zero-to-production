@@ -22,6 +22,7 @@ This repository contains my personal notes with excerpts and highlights of the b
 | [ch8](./docs/ch_08.md)  | Error Handling               | Advanced and proper error handling              |
 | [ch9](./docs/ch_09.md)  | Naive Newsletter Delivery    | Initial feature to send newsletter              |
 | [ch10](./docs/ch_10.md) | Securing Our API             | Authentication with protected routes            |
+| [ch11](./docs/ch_11.md) | Fault-Tolerant Workflows     | TODO                                            |
 | [qa](./docs/qa.md)      | Quality Assurance            | Field notes for QA-ing                          |
 
 ## Run it locally
