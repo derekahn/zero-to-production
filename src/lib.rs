@@ -1,6 +1,7 @@
 pub mod authentication;
 pub mod configuration;
 pub mod domain;
+pub mod idempotency;
 pub mod session_state;
 pub mod utils;
 
