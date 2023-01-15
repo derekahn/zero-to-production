@@ -4,6 +4,7 @@ use sqlx::postgres::{PgConnectOptions, PgSslMode};
 use sqlx::ConnectOptions;
 
 use crate::domain::SubscriberEmail;
+use crate::email_client::EmailClient;
 
 pub enum Environment {
     Local,
@@ -38,7 +39,7 @@ impl TryFrom<String> for Environment {
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
-    pub email_client: EmailClientSetings,
+    pub email_client: EmailClientSettings,
     pub redis_uri: Secret<String>,
 }
 
@@ -63,7 +64,7 @@ pub struct DatabaseSettings {
 }
 
 #[derive(serde::Deserialize, Clone)]
-pub struct EmailClientSetings {
+pub struct EmailClientSettings {
     pub base_url: String,
     pub sender_email: String,
     pub authorization_token: Secret<String>,
@@ -94,7 +95,19 @@ impl DatabaseSettings {
     }
 }
 
-impl EmailClientSetings {
+impl EmailClientSettings {
+    pub fn client(self) -> EmailClient {
+        let sender_email = self.sender().expect("Invalid sender email address");
+        let timeout = self.timeout();
+
+        EmailClient::new(
+            self.base_url,
+            sender_email,
+            self.authorization_token,
+            timeout,
+        )
+    }
+
     pub fn sender(&self) -> Result<SubscriberEmail, String> {
         SubscriberEmail::parse(self.sender_email.clone())
     }
