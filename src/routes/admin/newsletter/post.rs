@@ -42,16 +42,16 @@ pub async fn publish_newsletter(
     let idempotency_key: IdempotencyKey = idempotency_key.try_into().map_err(e400)?;
     let user_id = user_id.into_inner();
 
-    match try_processing(&pool, &idempotency_key, *user_id)
+    let transaction = match try_processing(&pool, &idempotency_key, *user_id)
         .await
         .map_err(e500)?
     {
-        NextAction::StartProcessing => {}
+        NextAction::StartProcessing(t) => t,
         NextAction::ReturnSavedResponse(saved_response) => {
             success_message().send();
             return Ok(saved_response);
         }
-    }
+    };
 
     let subscribers = get_confirmed_subscribers(&pool).await.map_err(e400)?;
     for subscriber in subscribers {
@@ -77,7 +77,7 @@ pub async fn publish_newsletter(
 
     success_message().send();
     let response = save_response(
-        &pool,
+        transaction,
         &idempotency_key,
         *user_id,
         see_other("/admin/newsletters"),
