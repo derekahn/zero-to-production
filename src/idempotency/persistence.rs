@@ -31,7 +31,8 @@ pub async fn get_saved_response(
             response_status_code,
             response_headers as "response_headers: Vec<HeaderPairRecord>",
             response_body
-        FROM idempotency
+        FROM
+            idempotency
         WHERE
             user_id = $1
         AND
