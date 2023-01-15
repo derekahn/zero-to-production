@@ -10,20 +10,20 @@ This repository contains my personal notes with excerpts and highlights of the b
 
 ## Table of Contents
 
-| Chapter                 | Title                        | Description                                     |
-| ----------------------- | ---------------------------- | ----------------------------------------------- |
-| [ch1](./docs/ch_01.md)  | Getting Started              | Setup and tooling                               |
-| [ch2](./docs/ch_02.md)  | Building An Email Newsletter | Project planning                                |
-| [ch3](./docs/ch_03.md)  | Sign Up a New Subscriber     | Pick the tech stack & wire it all up with tests |
-| [ch4](./docs/ch_04.md)  | Telemetry                    | Implement logs then tracing                     |
-| [ch5](./docs/ch_05.md)  | Going Live                   | Containerization, CI/CD                         |
-| [ch6](./docs/ch_06.md)  | Reject Invalid Subscriber #1 | Form validation and code organization           |
-| [ch7](./docs/ch_07.md)  | Reject Invalid Subscriber #2 | Wire up confirmation email flow                 |
-| [ch8](./docs/ch_08.md)  | Error Handling               | Advanced and proper error handling              |
-| [ch9](./docs/ch_09.md)  | Naive Newsletter Delivery    | Initial feature to send newsletter              |
-| [ch10](./docs/ch_10.md) | Securing Our API             | Authentication with protected routes            |
-| [ch11](./docs/ch_11.md) | Fault-Tolerant Workflows     | TODO                                            |
-| [qa](./docs/qa.md)      | Quality Assurance            | Field notes for QA-ing                          |
+| Chapter               | Title                        | Description                                     |
+| --------------------- | ---------------------------- | ----------------------------------------------- |
+| [01](./docs/ch_01.md) | Getting Started              | Setup and tooling                               |
+| [02](./docs/ch_02.md) | Building An Email Newsletter | Project planning                                |
+| [03](./docs/ch_03.md) | Sign Up a New Subscriber     | Pick the tech stack & wire it all up with tests |
+| [04](./docs/ch_04.md) | Telemetry                    | Implement logs then tracing                     |
+| [05](./docs/ch_05.md) | Going Live                   | Containerization, CI/CD                         |
+| [06](./docs/ch_06.md) | Reject Invalid Subscriber #1 | Form validation and code organization           |
+| [07](./docs/ch_07.md) | Reject Invalid Subscriber #2 | Wire up confirmation email flow                 |
+| [08](./docs/ch_08.md) | Error Handling               | Advanced and proper error handling              |
+| [09](./docs/ch_09.md) | Naive Newsletter Delivery    | Initial feature to send newsletter              |
+| [10](./docs/ch_10.md) | Securing Our API             | Authentication with protected routes            |
+| [11](./docs/ch_11.md) | Fault-Tolerant Workflows     | Idempotency and concurrency                     |
+| [QA](./docs/qa.md)    | Quality Assurance            | Field notes for QA-ing                          |
 
 ## Run it locally
 
